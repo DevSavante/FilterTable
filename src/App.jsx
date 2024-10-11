@@ -31,10 +31,13 @@ const FilterableTable = () => {
         }
       }
 
-      // Apply search term filtering for client
+      // Apply search term filtering across all columns
       if (searchTerm) {
         filtered = filtered.filter((item) =>
-          item.CLIENT.toLowerCase().includes(searchTerm.toLowerCase())
+          Object.values(item).some((value) =>
+            // Convert value to string safely and check if it includes the search term
+            value?.toString().toLowerCase().includes(searchTerm.toLowerCase())
+          )
         );
       }
 
@@ -62,7 +65,7 @@ const FilterableTable = () => {
         {/* Search Bar */}
         <input
           type="text"
-          placeholder="Search by client"
+          placeholder="Search across all columns"
           className="border rounded px-4 py-2"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
@@ -94,15 +97,23 @@ const FilterableTable = () => {
           </tr>
         </thead>
         <tbody>
-          {filteredData.map((item) => (
-            <tr key={item.PROPOSAL_NUMBER}>
-              {headers.map((header) => (
-                <td key={header} className="px-4 py-2 border">
-                  {header === 'STATUS' ? formatString(item[header]) : item[header]} {/* Format status */}
-                </td>
-              ))}
+          {filteredData.length > 0 ? (
+            filteredData.map((item) => (
+              <tr key={item.PROPOSAL_NUMBER}>
+                {headers.map((header) => (
+                  <td key={header} className="px-4 py-2 border">
+                    {header === 'STATUS' ? formatString(item[header]) : item[header]} {/* Format status */}
+                  </td>
+                ))}
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan={headers.length} className="text-center py-4">
+                No records found
+              </td>
             </tr>
-          ))}
+          )}
         </tbody>
       </table>
     </div>
